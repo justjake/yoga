@@ -15,3 +15,8 @@ mkmf.log
 
 # rspec failure tracking
 .rspec_status
+
+# we don't care about the Yoga source files right now; they should be copied in
+# during gem build from the repo root
+ext/yoga_layout/*.c
+ext/yoga_layout/*.h
