@@ -15,4 +15,149 @@ task :copy_src do
   sh 'cp ../yoga/* ext/yoga_layout'
 end
 
-task :default => [:copy_src, :clobber, :compile, :spec]
+# Parses Yoga.h into ruby function information
+class YogaHeaderParser
+  # partial regexes for the parts of a macro call
+  MACRO_NAME = 'YG_[A-Z_]+'
+  ARGUMENT = '[*\w ]+'
+  COMMA = ',\s?'
+
+  # a regex to parse a single macro call
+  MACRO_REGEX = /
+  ^                           # start of line
+  (?<macro>#{MACRO_NAME})          # eg, 'YG_NODE_STYLE_PROPERTY'
+  \(                          # '('
+  (?<type>#{ARGUMENT})        # the "type" argument, eg 'YGValue' or 'void *'
+  #{COMMA}                    #
+  (?<name>#{ARGUMENT})        # the name of the property, eg 'MinWidth'
+  (?:                         # optional group, because not all calls have a paramName
+   #{COMMA}
+   (?<paramName>#{ARGUMENT})  # the paramName, eg 'minWidth'
+  )?                          # close the optional group, and mark it optional
+  \)                          # ')'
+  ;                          # usually, but not always, we need a ; at the end
+  $                           # end of line
+  /x
+
+  def initialize(header_source)
+    @header = header_source
+    @functions = []
+  end
+
+  def call
+    matches.each do |match|
+      handle_match(match)
+    end
+    @functions
+  end
+
+  # crazy ruby nonsense to get all the matches of the regex on the string
+  def matches
+    @matches ||= @header.to_enum(:scan, MACRO_REGEX).map { Regexp.last_match }
+  end
+
+  def handle_match(match)
+    case match['macro']
+    when 'YG_NODE_PROPERTY'
+      yg_node_property(match)
+    when 'YG_NODE_STYLE_PROPERTY'
+      yg_node_style_property(match)
+    when 'YG_NODE_STYLE_PROPERTY_UNIT'
+      yg_node_style_property_unit(match)
+    when 'YG_NODE_STYLE_PROPERTY_UNIT_AUTO'
+      yg_node_style_edge_property_unit_auto(match)
+    when 'YG_NODE_STYLE_EDGE_PROPERTY'
+      yg_node_style_edge_property(match)
+    when 'YG_NODE_STYLE_EDGE_PROPERTY_UNIT'
+      yg_node_style_edge_property_unit(match)
+    when 'YG_NODE_STYLE_EDGE_PROPERTY_UNIT_AUTO'
+      yg_node_style_edge_property_unit_auto(match)
+    when 'YG_NODE_LAYOUT_PROPERTY'
+      yg_node_layout_property(match)
+    when 'YG_NODE_LAYOUT_EDGE_PROPERTY'
+      yg_node_layout_edge_property(match)
+    else
+      raise "Unparsable: #{match}"
+    end
+  end
+
+  def declare(fn_info)
+    name, args, result = fn_info
+    name = name.to_sym
+    args = args.map { |t| normalize_type(t) }
+    result = normalize_type(result)
+    @functions << [name, args, result]
+  end
+
+  def normalize_type(type)
+    case type
+    when 'void *'
+      :pointer
+    when Symbol
+      type
+    when String
+      type.to_sym
+    else
+      raise "cannot normalize type #{type.inpect}"
+    end
+  end
+
+  def yg_node_property(match)
+   declare ["YGNodeSet#{match['name']}", [:YGNodeRef, match['type']], :void]
+   declare ["YGNodeGet#{match['name']}", [:YGNodeRef], match['type']]
+  end
+
+  def yg_node_style_property(match)
+    declare ["YGNodeStyleSet#{match['name']}", [:YGNodeRef, match['type']], :void]
+    declare ["YGNodeStyleGet#{match['name']}", [:YGNodeRef], match['type']]
+  end
+
+  def yg_node_style_property_unit(match)
+    declare ["YGNodeStyleSet#{match['name']}", [:YGNodeRef, :float], :void]
+    declare ["YGNodeStyleSet#{match['name']}Percent", [:YGNodeRef, :float], :void]
+    declare ["YGNodeStyleGet#{match['name']}", [:YGNodeRef], match['type']]
+  end
+
+  def yg_node_style_property_unit_auto(match)
+    yg_node_style_property_unit(match)
+    declare ["YGNodeStyleSet#{match['name']}Auto", [:YGNodeRef], :void]
+  end
+
+  def yg_node_style_edge_property(match)
+    declare ["YGNodeStyleSet#{match['name']}", [:YGNodeRef, :YGEdge, match['type']], :void]
+    declare ["YGNodeStyleGet#{match['name']}", [:YGNodeRef, :YGEdge], match['type']]
+  end
+
+  def yg_node_style_edge_property_unit(match)
+    declare ["YGNodeStyleSet#{match['name']}", [:YGNodeRef, :YGEdge, :float], :void]
+    declare ["YGNodeStyleSet#{match['name']}Percent", [:YGNodeRef, :YGEdge, :float], :void]
+    # According to YGMacros.h, the return type here should be
+    # pointerOf(match['type']) on Windows ARM.
+    # This is Ruby, we don't care.
+    declare ["YGNodeStyleGet#{match['name']}", [:YGNodeRef, :YGEdge], match['type']]
+  end
+
+  def yg_node_style_edge_property_unit_auto(match)
+    declare ["YGNodeStyleSet#{match['name']}Auto", [:YGNodeRef, :YGEdge], :void]
+  end
+
+  def yg_node_layout_property(match)
+    declare ["YGNodeLayoutGet#{match['name']}", [:YGNodeRef], match['type']]
+  end
+
+  def yg_node_layout_edge_property(match)
+    declare ["YGNodeLayoutGet#{match['name']}", [:YGNodeRef, :YGEdge], match['type']]
+  end
+end
+
+desc 'Auto-generate lib/yoga_layout/native/functions.rb from Yoga.h by parsing macros'
+task :parse_header do
+  header = File.read('ext/yoga_layout/Yoga.h')
+
+  parser = YogaHeaderParser.new(header)
+  functions = parser.call
+
+  functions.each { |x| puts x.inspect }
+end
+
+task :default => [:copy_src, :parse_header, :clobber, :compile, :spec]
