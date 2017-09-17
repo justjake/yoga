@@ -1,5 +1,5 @@
 module YogaLayout
-  module Native
+  module Bindings
     typedef :pointer, :YGNodeRef
     typedef :pointer, :YGConfigRef
 

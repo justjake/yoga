@@ -1,5 +1,5 @@
 module YogaLayout
-  module Native
+  module Bindings
     # Disabled, because YGLogger type is unsupported by Ruby's FFI
     # remember_function :YCConfigSetLogger, [:YGConfigRef, :YGLogger], :void
     remember_function :YGLog, [:YGNodeRef, :YGLogLevel, :string, :varargs], :void

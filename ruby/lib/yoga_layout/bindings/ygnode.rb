@@ -1,5 +1,5 @@
 module YogaLayout
-  module Native
+  module Bindings
     # This file defines non-propety methods of YGNodde
 
     # Lifecycle

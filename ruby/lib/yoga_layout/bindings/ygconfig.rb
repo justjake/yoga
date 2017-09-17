@@ -1,5 +1,5 @@
 module YogaLayout
-  module Native
+  module Bindings
     # This file contains the Yoga functions that operate primarily on YGConfigRef
 
     # Set this to number of pixels in 1 point to round calculation results. If

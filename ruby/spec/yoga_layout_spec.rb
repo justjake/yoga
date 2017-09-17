@@ -6,7 +6,7 @@ RSpec.describe YogaLayout do
   end
 end
 
-RSpec.describe YogaLayout::Native do
+RSpec.describe YogaLayout::Bindings do
   it 'can lifecycle' do
     node = described_class.YGNodeNew
     described_class.YGNodeFree(node)
@@ -23,13 +23,14 @@ RSpec.describe YogaLayout::Node do
   let(:native_nodes) { [] }
 
   def new_native_node
-    node = YogaLayout::Native.YGNodeNew
+    node = YogaLayout::Bindings.YGNodeNew
     native_nodes << node
     node
   end
 
   after :each do
-    native_nodes.each { |p| YogaLayout::Native.YGNodeFree(p) }
+    native_nodes.each { |p| YogaLayout::Bindings.YGNodeFree(p) }
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
   end
 
   subject { described_class.new(new_native_node) }
@@ -47,6 +48,13 @@ RSpec.describe YogaLayout::Node do
       it 'returns 1' do
         expect(subject.get_child_count).to eq(1)
       end
+    end
+  end
+
+  describe '#style_set_direction' do
+    it 'can set direction' do
+      subject.style_set_direction(:LTR)
+      expect(subject.style_get_direction).to eq(:LTR)
     end
   end
 end
