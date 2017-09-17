@@ -253,3 +253,20 @@ with open(root + '/javascript/sources/YGEnums.js', 'w') as f:
                 base += 1
         f.write('\n')
     f.write('};\n')
+
+# write out ruby file
+with open(root + '/ruby/lib/yoga_layout/enums.rb', 'w') as f:
+    f.write('require "ffi"\n')
+    f.write('module YogaLayout\n')
+    f.write('  module Native\n')
+    f.write('    include FFI::Library\n')
+    for name, values in sorted(ENUMS.items()):
+        f.write('\n    %s = enum(\n' % (name))
+        for value in values:
+            if isinstance(value, tuple):
+                f.write('      :%s, %d,\n' % value)
+            else:
+                f.write('      :%s,\n' % (value))
+        f.write('    )\n')
+    f.write('\n  end\n')
+    f.write('end\n')
