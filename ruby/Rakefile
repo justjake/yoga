@@ -11,4 +11,8 @@ Rake::ExtensionTask.new("yoga_layout") do |ext|
   ext.lib_dir = "lib/yoga_layout"
 end
 
-task :default => [:clobber, :compile, :spec]
+task :copy_src do
+  sh 'cp ../yoga/* ext/yoga_layout'
+end
+
+task :default => [:copy_src, :clobber, :compile, :spec]
