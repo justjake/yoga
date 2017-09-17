@@ -35,7 +35,7 @@ class YogaHeaderParser
    (?<paramName>#{ARGUMENT})  # the paramName, eg 'minWidth'
   )?                          # close the optional group, and mark it optional
   \)                          # ')'
-  ;                          # usually, but not always, we need a ; at the end
+  ;?                          # usually, but not always, we need a ; at the end
   $                           # end of line
   /x
 

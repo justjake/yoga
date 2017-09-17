@@ -6,6 +6,8 @@ module YogaLayout
     remember_function :YGNodeGetContext, [:YGNodeRef], :pointer
     remember_function :YGNodeSetMeasureFunc, [:YGNodeRef, :YGMeasureFunc], :void
     remember_function :YGNodeGetMeasureFunc, [:YGNodeRef], :YGMeasureFunc
+    remember_function :YGNodeSetBaselineFunc, [:YGNodeRef, :YGBaselineFunc], :void
+    remember_function :YGNodeGetBaselineFunc, [:YGNodeRef], :YGBaselineFunc
     remember_function :YGNodeSetPrintFunc, [:YGNodeRef, :YGPrintFunc], :void
     remember_function :YGNodeGetPrintFunc, [:YGNodeRef], :YGPrintFunc
     remember_function :YGNodeSetHasNewLayout, [:YGNodeRef, :bool], :void
