@@ -173,4 +173,4 @@ task :ygnode_properties do
   end
 end
 
-task :default => [:copy_src, :parse_header, :clobber, :compile, :spec]
+task :default => [:copy_src, :ygnode_properties, :clobber, :compile, :spec]

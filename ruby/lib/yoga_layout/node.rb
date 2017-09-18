@@ -92,7 +92,7 @@ module YogaLayout
     # @return [Hash]
     def layout
       Hash[
-        self.class.layout_props.map { |method, prop| puts method; [prop, public_send(method)] }
+        self.class.layout_props.map { |method, prop| [prop, public_send(method)] }
       ]
     end
 
@@ -101,7 +101,7 @@ module YogaLayout
     # @return [Hash]
     def styles
       Hash[
-        self.class.style_props.map { |method, prop| puts method; [prop, public_send(method)] }
+        self.class.style_props.map { |method, prop| [prop, public_send(method)] }
       ]
     end
 
@@ -148,14 +148,13 @@ module YogaLayout
           map_method(sub_name, native_name.to_sym, [edge_sym])
           layout_props[sub_name] = "#{prop}_#{edge_sym}".to_sym if domain == 'Layout' && action == 'Get'
           style_props[sub_name] = "#{prop}_#{edge_sym}".to_sym if domain == 'Style' && action == 'Get'
-          puts sub_name.inspect, edge_sym.inspect
         end
       end
 
 
       # record information about getters, used for the #layout and #style
       # instance methods
-      if domain && action == 'Get'
+      if domain && action == 'Get' && args.size == 1
         layout_props[ruby_name.to_sym] = prop.to_sym if domain == 'Layout'
         style_props[ruby_name.to_sym] = prop.to_sym if domain == 'Style'
       end
