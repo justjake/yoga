@@ -20,20 +20,32 @@ RSpec.describe YogaLayout::Bindings do
 end
 
 RSpec.describe YogaLayout::Node do
-  let(:native_nodes) { [] }
+  subject { described_class.new }
 
-  def new_native_node
-    node = YogaLayout::Bindings.YGNodeNew
-    native_nodes << node
-    node
-  end
-
-  after :each do
-    native_nodes.each { |p| YogaLayout::Bindings.YGNodeFree(p) }
+  # Ensure we aren't leaking any native objects.
+  #
+  # We can't do this in an after(:each) block, because RSpec's memoizer (for
+  # subject {...}) retains a reference to the `subject` during the after()
+  # block.
+  after(:all) do
+    ::ObjectSpace.garbage_collect
     expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
   end
 
-  subject { described_class.new(new_native_node) }
+  # Strict test that garbage collecting a Node instance actually deallocates
+  # the underlying YGNodeRef
+  it 'garbage collects' do
+    ObjectSpace.garbage_collect
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
+
+    allocated = described_class.new
+    ObjectSpace.garbage_collect
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(1)
+
+    allocated = nil
+    ObjectSpace.garbage_collect
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
+  end
 
   describe '#get_child_count' do
     it 'returns 0' do
@@ -42,12 +54,21 @@ RSpec.describe YogaLayout::Node do
 
     context 'with a child' do
       before do
-        subject.insert_child(new_native_node, 0)
+        subject.insert_child(described_class.new, 0)
       end
 
       it 'returns 1' do
         expect(subject.get_child_count).to eq(1)
       end
+    end
+  end
+
+  describe 'fatal invariants do not abort(2) the process' do
+    it 'insert child when child already has parent' do
+      other_parent = described_class.new
+      child = described_class.new
+      other_parent.insert_child(child, 0)
+      expect { subject.insert_child(child, 0) }.to raise_error(YogaLayout::Error)
     end
   end
 
