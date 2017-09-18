@@ -81,46 +81,90 @@ RSpec.describe YogaLayout::Node do
 end
 
 RSpec.describe('examples') do
+  describe('example 1') do
+    # Translation of the C example into Ruby:
+    #
+    #   YGNodeRef root = YGNodeNew();
+    #   YGNodeStyleSetWidth(root, 500);
+    #   YGNodeStyleSetHeight(root, 120);
+    #   YGNodeStyleSetFlexDirection(root, YGFlexDirectionRow);
+    #   YGNodeStyleSetPadding(root, YGEdgeAll, 20);
+    #
+    #   YGNodeRef image = YGNodeNew();
+    #   YGNodeStyleSetWidth(image, 80);
+    #   YGNodeStyleSetMargin(image, YGEdgeEnd, 20);
+    #
+    #   YGNodeRef text = YGNodeNew();
+    #   YGNodeStyleSetHeight(text, 25);
+    #   YGNodeStyleSetAlignSelf(text, YGAlignCenter);
+    #   YGNodeStyleSetFlexGrow(text, 1);
+    #
+    #   YGNodeInsertChild(root, image, 0);
+    #   YGNodeInsertChild(root, text, 1);
+    it 'works with low-level syntax' do
+      root = YogaLayout::Node.new
+      root.style_set_width(500)
+      root.style_set_height(120)
+      root.style_set_flex_direction(:row)
+      root.style_set_padding(:all, 20)
 
-  # Translation of the C example into Ruby:
-  #
-  #   YGNodeRef root = YGNodeNew();
-  #   YGNodeStyleSetWidth(root, 500);
-  #   YGNodeStyleSetHeight(root, 120);
-  #   YGNodeStyleSetFlexDirection(root, YGFlexDirectionRow);
-  #   YGNodeStyleSetPadding(root, YGEdgeAll, 20);
-  #
-  #   YGNodeRef image = YGNodeNew();
-  #   YGNodeStyleSetWidth(image, 80);
-  #   YGNodeStyleSetMargin(image, YGEdgeEnd, 20);
-  #
-  #   YGNodeRef text = YGNodeNew();
-  #   YGNodeStyleSetHeight(text, 25);
-  #   YGNodeStyleSetAlignSelf(text, YGAlignCenter);
-  #   YGNodeStyleSetFlexGrow(text, 1);
-  #
-  #   YGNodeInsertChild(root, image, 0);
-  #   YGNodeInsertChild(root, text, 1);
-  it 'does example 1' do
-    root = YogaLayout::Node.new
-    root.style_set_width(500)
-    root.style_set_height(120)
-    root.style_set_flex_direction(:row)
-    root.style_set_padding(:all, 20)
+      image = YogaLayout::Node.new
+      image.style_set_width(80)
+      image.style_set_margin(:end, 20)
 
-    image = YogaLayout::Node.new
-    image.style_set_width(80)
-    image.style_set_margin(:end, 20)
+      text = YogaLayout::Node.new
+      text.style_set_height(25)
+      text.style_set_align_self(:center)
+      text.style_set_flex_grow(1)
 
-    text = YogaLayout::Node.new
-    text.style_set_height(25)
-    text.style_set_align_self(:center)
-    text.style_set_flex_grow(1)
+      root.insert_child(image, 0)
+      root.insert_child(text, 1)
+      root.calculate_layout
 
-    root.insert_child(image, 0)
-    root.insert_child(text, 1)
-    root.calculate_layout
+      root.print(1 | 2 | 4 | 8)
+    end
 
-    root.print(1 | 2 | 4 | 8)
+    it 'works with ruby syntax' do
+      root = YogaLayout::Node.new.set_styles(
+        width: 500,
+        height: 100,
+        flex_direction: :row,
+        padding: 20,
+      )
+
+      image = YogaLayout::Node.new.set_styles(
+        width: 80,
+        margin_end: 20,
+      )
+
+      text = YogaLayout::Node.new.set_styles(
+        height: 25,
+        align_self: :center,
+        flex_grow: 1,
+      )
+
+      root.insert_child(image, 0).insert_child(text, 1).calculate_layout
+      root.print(1 | 2 | 4 | 8)
+    end
+
+    it 'works with shorthand syntax' do
+      layout = YogaLayout::Node[
+        width: 500,
+        height: 100,
+        flex_direction: :row,
+        padding: 20,
+        children: [
+          YogaLayout::Node[
+            width: 80,
+            margin_end: 20,
+          ],
+          YogaLayout::Node[
+            height: 25,
+            align_self: :center,
+            flex_grow: 1,
+          ]
+        ],
+      ].print(1 | 2 | 4 | 8)
+    end
   end
 end

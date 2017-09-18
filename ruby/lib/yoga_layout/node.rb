@@ -14,6 +14,22 @@ module YogaLayout
   # calculation is stored on each node. Traverse the tree and retrieve the
   # values from each node.
   class Node < YogaLayout::Wrapper
+    # Quickly create a bunch of nodes with this handy node literal syntax.
+    #
+    # @param opts [Hash] save for the :children option, all of these are passed
+    #   to {#set_styles}
+    # @option opts [Array<Node>] :children ([]) Children, in order, to add to
+    #   this node.
+    # @return [Node]
+    def self.[](opts = {})
+      children = opts.delete(:children) || []
+      node = new.set_styles(opts)
+      children.each_with_index do |child, idx|
+        node.insert_child(child, idx)
+      end
+      node
+    end
+
     # Create a new Node with a specific config.
     #
     # @param config [YogaLayout::Config]
@@ -42,6 +58,33 @@ module YogaLayout
       @data = nil
       @measure_func = nil
       @baseline_func = nil
+    end
+
+    # Set many styles at once.
+    #
+    # Uses ruby magic to make it easier to set styles.
+    #
+    # @param [Hash<#to_s, any>] Map from style property to value
+    # @return [Node] self
+    def set_styles(styles)
+      styles.each do |prop, value|
+        method_name = "style_set_#{prop}"
+
+        if respond_to?(method_name)
+          if method(method_name).arity == 1
+            # Handle eg, flex_direction: :row
+            public_send(method_name, value)
+          else
+            # Handle eg, padding: 25
+            public_send(method_name, :all, value)
+          end
+        else
+          # handle eg, margin_top: 50
+          method_name, _, edge = method_name.rpartition('_')
+          public_send(method_name, edge.to_sym, value)
+        end
+      end
+      self
     end
 
     # Automagically map every YGNode* function that recieves a YGNodeRef as the
@@ -80,27 +123,31 @@ module YogaLayout
     end
 
     def insert_child(node, idx)
+      unless node.is_a?(self.class)
+        raise TypeError, "Child #{node.inspect} must be a YogaLayout::Node"
+      end
+
       if node.parent
-        raise Error, "Child #{node} already has a parent, it must be removed first."
+        raise Error, "Child #{node.inspect} already has a parent, it must be removed first."
       end
 
       if has_measure_func?
         raise Error, 'Cannot add child: Nodes with measure functions cannot have children.'
       end
 
-      result = YogaLayout::Bindings.YGNodeInsertChild(pointer, node.pointer, idx)
+      YogaLayout::Bindings.YGNodeInsertChild(pointer, node.pointer, idx)
       @children.insert(idx, node)
       node.parent = self
-      result
+      self
     end
 
     def remove_child(node)
       # If asked to remove a child that isn't a child, Yoga just does nothing, so this is okay
-      result = YogaLayout::Bindings.YGNodeRemoveChild(pointer, node.pointer)
+      YogaLayout::Bindings.YGNodeRemoveChild(pointer, node.pointer)
       if @children.delete(node)
         node.parent = nil
       end
-      result
+      self
     end
 
     def get_child(idx)
@@ -133,6 +180,8 @@ module YogaLayout
       else
         YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, nil)
       end
+
+      self
     end
 
     def get_measure_func
@@ -146,6 +195,8 @@ module YogaLayout
       else
         YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, nil)
       end
+
+      self
     end
 
     def get_baseline_func
@@ -158,6 +209,8 @@ module YogaLayout
       end
 
       YogaLayout::Bindings.YGNodeMarkDirty(pointer)
+
+      self
     end
 
     map_method(:dirty?, :YGNodeIsDirty)
@@ -178,6 +231,7 @@ module YogaLayout
         par_height || undefined,
         par_dir || :inherit
       )
+      self
     end
 
     protected
