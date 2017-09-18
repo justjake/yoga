@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jake Teton-Landis"]
   spec.email         = ["jake.tl@airbnb.com"]
 
-  spec.summary       = %q{Wrapper for the cross-platform Yoga layout library}
+  spec.summary       = %q{FFI-based wrapper of the cross-platform Yoga layout library}
   spec.homepage      = "https://github.com/justjake/yoga"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'drawille' # for a demo
 end

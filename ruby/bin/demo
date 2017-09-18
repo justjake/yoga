@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require 'pry'
+require "yoga_layout"
+require "drawille"
+
+# You can add fixtures and/or initialization code here to make experimenting
+# with your gem easier. You can also use a different console, if you like.
+
+def node_enum(node)
+  Enumerator.new do |y|
+    queue = []
+    queue << node
+
+    while queue.size > 0
+      node = queue.pop
+      y << node
+      node.get_child_count.times do |i|
+        child = node.get_child(i)
+        queue << child
+      end
+    end
+  end
+end
+
+def rect(brush, top, left, width, height)
+  top_left = [left, top]
+  top_right = [left + width, top]
+  bottom_right = [left + width, top + height]
+  bottom_left = [left, top + height]
+
+  brush.line(from: top_left, to: top_right)
+  brush.line(from: top_right, to: bottom_right)
+  brush.line(from: bottom_right, to: bottom_left)
+  brush.line(from: bottom_left, to: top_left)
+end
+
+def show_layout(root)
+  root.calculate_layout
+  canvas = Drawille::Canvas.new
+  brush = Drawille::Brush.new(canvas)
+  node_enum(root).each do |node|
+    rect(
+      brush,
+      node.layout[:top],
+      node.layout[:left],
+      node.layout[:width],
+      node.layout[:height],
+    )
+  end
+  puts canvas.frame
+end
+
+class Draw
+  def initialize
+    @canvas = Drawille::Canvas.new
+    @brush = Drawille::Brush.new(@canvas)
+  end
+
+  def draw_node(node)
+  end
+
+  def show
+    puts @canvas.frame
+  end
+end
+
+layout = YogaLayout::Node[
+  width: 500,
+  height: 100,
+  flex_direction: :row,
+  padding: 20,
+  children: [
+    YogaLayout::Node[
+      width: 80,
+      margin_end: 20,
+    ],
+    YogaLayout::Node[
+      height: 25,
+      align_self: :center,
+      flex_grow: 1,
+    ]
+  ],
+]
+
+binding.pry
+
+show_layout(layout)
