@@ -87,6 +87,32 @@ module YogaLayout
       self
     end
 
+    # Retrieve all layout information as a hash
+    #
+    # @return [Hash]
+    def layout
+      Hash[
+        self.class.layout_props.map { |method, prop| puts method; [prop, public_send(method)] }
+      ]
+    end
+
+    # Retrieve all style information as a hash
+    #
+    # @return [Hash]
+    def styles
+      Hash[
+        self.class.style_props.map { |method, prop| puts method; [prop, public_send(method)] }
+      ]
+    end
+
+    def self.style_props
+      @style_props ||= {}
+    end
+
+    def self.layout_props
+      @layout_props ||= {}
+    end
+
     # Automagically map every YGNode* function that recieves a YGNodeRef as the
     # first value. :tada:.
     ::YogaLayout::Bindings.functions.values.each do |fn_info|
@@ -94,6 +120,11 @@ module YogaLayout
       native_name = native_name.to_s
       next unless native_name =~ /^YGNode(Style|Layout)?(Set|Get)/
       next unless args.first == :YGNodeRef
+
+      match = Regexp.last_match
+      domain = match[1]
+      action = match[2]
+      prop = YogaLayout.underscore(match.post_match)
 
       # Don't expose methods that return pointers automatically: We should
       # always wrap those pointers in Ruby objects for safety.
@@ -103,7 +134,34 @@ module YogaLayout
 
       ruby_name = YogaLayout.underscore(native_name.gsub(/^YGNode/, ''))
       map_method(ruby_name.to_sym, native_name.to_sym)
+
+      if args[1] == :YGEdge
+        # generate direct accessors for each edge property
+        # eg, style_set_border_top or style_set_border_all
+        YogaLayout::Bindings::Edge.to_h.each do |edge_sym, _|
+          # Cannot get layout properties of multi-edge shorthands
+          if [:horizontal, :vertical, :all].include?(edge_sym) && action == 'Get'
+            next
+          end
+
+          sub_name = "#{ruby_name}_#{edge_sym}".to_sym
+          map_method(sub_name, native_name.to_sym, [edge_sym])
+          layout_props[sub_name] = "#{prop}_#{edge_sym}".to_sym if domain == 'Layout' && action == 'Get'
+          style_props[sub_name] = "#{prop}_#{edge_sym}".to_sym if domain == 'Style' && action == 'Get'
+          puts sub_name.inspect, edge_sym.inspect
+        end
+      end
+
+
+      # record information about getters, used for the #layout and #style
+      # instance methods
+      if domain && action == 'Get'
+        layout_props[ruby_name.to_sym] = prop.to_sym if domain == 'Layout'
+        style_props[ruby_name.to_sym] = prop.to_sym if domain == 'Style'
+      end
     end
+    style_props.freeze
+    layout_props.freeze
 
     map_method(:print, :YGNodePrint)
 

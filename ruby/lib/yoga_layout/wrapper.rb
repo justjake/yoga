@@ -42,12 +42,13 @@ module YogaLayout
     # @api private
     # @param ruby_name [Symbol] The name of the method to define on this class.
     # @param binding_name [Sybmol] The name of the FFI function in {YogaLayout::Binding.functions}.
-    def self.map_method(ruby_name, binding_name)
+    # @param memo_args [Array<any>] Positional arguments to pass after `self.pointer`
+    def self.map_method(ruby_name, binding_name, memo_args=[])
       info = YogaLayout::Bindings.functions.fetch(binding_name)
       _, binding_args, return_type = info
       reciever_type, *method_args = binding_args
 
-      args_list_literal = method_args.each_with_index.map do |type, i|
+      args_names = method_args.each_with_index.map do |type, i|
         as_string = if type.is_a?(Symbol)
                  type.to_s.gsub(/^YG/, '')
                elsif type.respond_to?(:name)
@@ -56,13 +57,20 @@ module YogaLayout
                  "unknown"
                end
         YogaLayout.underscore(as_string) + "_#{i}"
-      end.join(', ')
+      end
 
-      class_eval <<-EOS
+      # remove things we aren't buying
+      args_names.shift(memo_args.length)
+      args_list_literal = args_names.join(', ')
+      memo_args_literal = (['pointer'] + memo_args.map(&:inspect) + args_names).join(', ')
+
+      defn = <<-EOS
         def #{ruby_name}(#{args_list_literal})
-          ::YogaLayout::Bindings.#{binding_name}(pointer, #{args_list_literal})
+          ::YogaLayout::Bindings.#{binding_name}(#{memo_args_literal})
         end
       EOS
+
+      class_eval(defn)
     end
 
     # Create a new instane of this wrapper class.
