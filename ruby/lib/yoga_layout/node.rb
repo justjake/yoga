@@ -62,13 +62,15 @@ module YogaLayout
       map_method(ruby_name.to_sym, native_name.to_sym)
     end
 
+    map_method(:print, :YGNodePrint)
+
     def reset
       if has_children?
-        raise Error, "Cannot reset a node which still has children attached"
+        raise Error, 'Cannot reset a node which still has children attached'
       end
 
       unless parent.nil?
-        raise Error, "Cannot reset a node still attached to a parent"
+        raise Error, 'Cannot reset a node still attached to a parent'
       end
 
       YogaLayout::Bindings.YGNodeReset(pointer)
@@ -83,7 +85,7 @@ module YogaLayout
       end
 
       if has_measure_func?
-        raise Error, "Cannot add child: Nodes with measure functions cannot have children."
+        raise Error, 'Cannot add child: Nodes with measure functions cannot have children.'
       end
 
       result = YogaLayout::Bindings.YGNodeInsertChild(pointer, node.pointer, idx)
@@ -152,7 +154,7 @@ module YogaLayout
 
     def mark_dirty
       unless has_measure_func?
-        raise Error, "Only leaf nodes with custom measure functions should manually mark themselves as diry"
+        raise Error, 'Only leaf nodes with custom measure functions should manually mark themselves as diry'
       end
 
       YogaLayout::Bindings.YGNodeMarkDirty(pointer)
@@ -166,6 +168,16 @@ module YogaLayout
 
     def has_children?
       get_child_count != 0
+    end
+
+    def calculate_layout(par_width = nil, par_height = nil, par_dir = nil)
+      undefined = ::Float::NAN
+      YogaLayout::Bindings.YGNodeCalculateLayout(
+        pointer,
+        par_width || undefined,
+        par_height || undefined,
+        par_dir || :Inherit
+      )
     end
 
     protected

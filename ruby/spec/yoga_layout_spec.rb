@@ -12,7 +12,7 @@ RSpec.describe YogaLayout::Bindings do
     described_class.YGNodeFree(node)
   end
 
-  it 'can print' do
+  xit 'can print' do
     node = described_class.YGNodeNew
     described_class.YGNodePrint(node, 4)
     described_class.YGNodeFree(node)
@@ -77,5 +77,50 @@ RSpec.describe YogaLayout::Node do
       subject.style_set_direction(:LTR)
       expect(subject.style_get_direction).to eq(:LTR)
     end
+  end
+end
+
+RSpec.describe('examples') do
+
+  # Translation of the C example into Ruby:
+  #
+  #   YGNodeRef root = YGNodeNew();
+  #   YGNodeStyleSetWidth(root, 500);
+  #   YGNodeStyleSetHeight(root, 120);
+  #   YGNodeStyleSetFlexDirection(root, YGFlexDirectionRow);
+  #   YGNodeStyleSetPadding(root, YGEdgeAll, 20);
+  #
+  #   YGNodeRef image = YGNodeNew();
+  #   YGNodeStyleSetWidth(image, 80);
+  #   YGNodeStyleSetMargin(image, YGEdgeEnd, 20);
+  #
+  #   YGNodeRef text = YGNodeNew();
+  #   YGNodeStyleSetHeight(text, 25);
+  #   YGNodeStyleSetAlignSelf(text, YGAlignCenter);
+  #   YGNodeStyleSetFlexGrow(text, 1);
+  #
+  #   YGNodeInsertChild(root, image, 0);
+  #   YGNodeInsertChild(root, text, 1);
+  it 'does example 1' do
+    root = YogaLayout::Node.new
+    root.style_set_width(500)
+    root.style_set_height(120)
+    root.style_set_flex_direction(:Row)
+    root.style_set_padding(:All, 20)
+
+    image = YogaLayout::Node.new
+    image.style_set_width(80)
+    image.style_set_margin(:End, 20)
+
+    text = YogaLayout::Node.new
+    text.style_set_height(25)
+    text.style_set_align_self(:Center)
+    text.style_set_flex_grow(1)
+
+    root.insert_child(image, 0)
+    root.insert_child(text, 1)
+    root.calculate_layout
+
+    root.print(1 | 2 | 4 | 8)
   end
 end
