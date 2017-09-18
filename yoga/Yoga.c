@@ -719,7 +719,7 @@ static inline const YGValue *YGNodeResolveFlexBasisPtr(const YGNodeRef node) {
 #define YG_NODE_LAYOUT_RESOLVED_PROPERTY_IMPL(type, name, instanceName)        \
   type YGNodeLayoutGet##name(const YGNodeRef node, const YGEdge edge) {        \
     YGAssertWithNode(node,                                                     \
-                     edge < YGEdgeEnd,                                         \
+                     edge <= YGEdgeEnd,                                        \
                      "Cannot get layout properties of multi-edge shorthands"); \
                                                                                \
     if (edge == YGEdgeLeft) {                                                  \
@@ -1865,18 +1865,7 @@ static bool YGNodeFixedSizeSetMeasuredDimensions(const YGNodeRef node,
 }
 
 static void YGZeroOutLayoutRecursivly(const YGNodeRef node) {
-  node->layout.dimensions[YGDimensionHeight] = 0;
-  node->layout.dimensions[YGDimensionWidth] = 0;
-  node->layout.position[YGEdgeTop] = 0;
-  node->layout.position[YGEdgeBottom] = 0;
-  node->layout.position[YGEdgeLeft] = 0;
-  node->layout.position[YGEdgeRight] = 0;
-  node->layout.cachedLayout.availableHeight = 0;
-  node->layout.cachedLayout.availableWidth = 0;
-  node->layout.cachedLayout.heightMeasureMode = YGMeasureModeExactly;
-  node->layout.cachedLayout.widthMeasureMode = YGMeasureModeExactly;
-  node->layout.cachedLayout.computedWidth = 0;
-  node->layout.cachedLayout.computedHeight = 0;
+  memset(&(node->layout), 0, sizeof(YGLayout));
   node->hasNewLayout = true;
   const uint32_t childCount = YGNodeGetChildCount(node);
   for (uint32_t i = 0; i < childCount; i++) {
