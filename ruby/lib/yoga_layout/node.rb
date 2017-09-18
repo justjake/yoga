@@ -41,6 +41,7 @@ module YogaLayout
       @parent = nil
       @data = nil
       @measure_func = nil
+      @baseline_func = nil
     end
 
     # Automagically map every YGNode* function that recieves a YGNodeRef as the
@@ -72,6 +73,7 @@ module YogaLayout
 
       YogaLayout::Bindings.YGNodeReset(pointer)
       @measure_func = nil
+      @baseline_func = nil
       @data = nil
     end
 
@@ -121,11 +123,31 @@ module YogaLayout
 
     def set_measure_func(callable = nil, &block)
       if has_children?
-        raise Error, "Cannot set measure function: Nodes with measure functions cannot have children."
+        raise Error, 'Cannot set measure function: Nodes with measure functions cannot have children.'
       end
-      func = callable || block
-      @measure_func = func
-      # TODO: also set the native measure function
+      @measure_func = callable || block
+      if @measure_func
+        YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, native_measure_func)
+      else
+        YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, nil)
+      end
+    end
+
+    def get_measure_func
+      @measure_func
+    end
+
+    def set_baseline_func(callable = nil, &block)
+      @baseline_func = callable || block
+      if @baseline_func
+        YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, native_baseline_func)
+      else
+        YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, nil)
+      end
+    end
+
+    def get_baseline_func
+      @baseline_func
     end
 
     def mark_dirty
@@ -139,7 +161,7 @@ module YogaLayout
     map_method(:dirty?, :YGNodeIsDirty)
 
     def has_measure_func?
-      @measure_func != nil
+      get_measure_func != nil
     end
 
     def has_children?
@@ -149,5 +171,35 @@ module YogaLayout
     protected
 
     attr_accessor :parent
+
+    def native_measure_func
+      @native_measure_func ||= ::FFI::Function.new(
+        :YGSize, [
+          :YGNodeRef,
+          :float,
+          :YGMeasureMode,
+          :float,
+          :YGMeasureMode,
+        ],
+        method(:native_measure_func_callback)
+      )
+    end
+
+    def native_measure_func_callback(_, widht, width_mode, height, height_mode)
+      # we ignore the YGNodeRef param because we can just use "self" instead
+      @measure_func.call(self, widht, width_mode, height, height_mode)
+    end
+
+    def native_baseline_func
+      @native_baseline_func ||= ::FFI::Function.new(
+        :float,
+        [:YGNodeRef, :float, :float],
+        method(:native_baseline_func_callback)
+      )
+    end
+
+    def native_baseline_func_callback(_, width, height)
+      @baseline_func.call(self, width, height)
+    end
   end
 end
