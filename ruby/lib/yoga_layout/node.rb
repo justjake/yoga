@@ -176,7 +176,7 @@ module YogaLayout
         pointer,
         par_width || undefined,
         par_height || undefined,
-        par_dir || :Inherit
+        par_dir || :inherit
       )
     end
 

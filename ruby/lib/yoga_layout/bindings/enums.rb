@@ -4,126 +4,126 @@ module YogaLayout
   module Bindings
 
     Align = enum(
-      :Auto,
-      :FlexStart,
-      :Center,
-      :FlexEnd,
-      :Stretch,
-      :Baseline,
-      :SpaceBetween,
-      :SpaceAround,
+      :auto,
+      :flex_start,
+      :center,
+      :flex_end,
+      :stretch,
+      :baseline,
+      :space_between,
+      :space_around,
     )
     typedef Align, :YGAlign
 
     Dimension = enum(
-      :Width,
-      :Height,
+      :width,
+      :height,
     )
     typedef Dimension, :YGDimension
 
     Direction = enum(
-      :Inherit,
-      :LTR,
-      :RTL,
+      :inherit,
+      :ltr,
+      :rtl,
     )
     typedef Direction, :YGDirection
 
     Display = enum(
-      :Flex,
-      :None,
+      :flex,
+      :none,
     )
     typedef Display, :YGDisplay
 
     Edge = enum(
-      :Left,
-      :Top,
-      :Right,
-      :Bottom,
-      :Start,
-      :End,
-      :Horizontal,
-      :Vertical,
-      :All,
+      :left,
+      :top,
+      :right,
+      :bottom,
+      :start,
+      :end,
+      :horizontal,
+      :vertical,
+      :all,
     )
     typedef Edge, :YGEdge
 
     ExperimentalFeature = enum(
-      :WebFlexBasis,
+      :web_flex_basis,
     )
     typedef ExperimentalFeature, :YGExperimentalFeature
 
     FlexDirection = enum(
-      :Column,
-      :ColumnReverse,
-      :Row,
-      :RowReverse,
+      :column,
+      :column_reverse,
+      :row,
+      :row_reverse,
     )
     typedef FlexDirection, :YGFlexDirection
 
     Justify = enum(
-      :FlexStart,
-      :Center,
-      :FlexEnd,
-      :SpaceBetween,
-      :SpaceAround,
+      :flex_start,
+      :center,
+      :flex_end,
+      :space_between,
+      :space_around,
     )
     typedef Justify, :YGJustify
 
     LogLevel = enum(
-      :Error,
-      :Warn,
-      :Info,
-      :Debug,
-      :Verbose,
-      :Fatal,
+      :error,
+      :warn,
+      :info,
+      :debug,
+      :verbose,
+      :fatal,
     )
     typedef LogLevel, :YGLogLevel
 
     MeasureMode = enum(
-      :Undefined,
-      :Exactly,
-      :AtMost,
+      :undefined,
+      :exactly,
+      :at_most,
     )
     typedef MeasureMode, :YGMeasureMode
 
     NodeType = enum(
-      :Default,
-      :Text,
+      :default,
+      :text,
     )
     typedef NodeType, :YGNodeType
 
     Overflow = enum(
-      :Visible,
-      :Hidden,
-      :Scroll,
+      :visible,
+      :hidden,
+      :scroll,
     )
     typedef Overflow, :YGOverflow
 
     PositionType = enum(
-      :Relative,
-      :Absolute,
+      :relative,
+      :absolute,
     )
     typedef PositionType, :YGPositionType
 
     PrintOptions = enum(
-      :Layout, 1,
-      :Style, 2,
-      :Children, 4,
+      :layout, 1,
+      :style, 2,
+      :children, 4,
     )
     typedef PrintOptions, :YGPrintOptions
 
     Unit = enum(
-      :Undefined,
-      :Point,
-      :Percent,
-      :Auto,
+      :undefined,
+      :point,
+      :percent,
+      :auto,
     )
     typedef Unit, :YGUnit
 
     Wrap = enum(
-      :NoWrap,
-      :Wrap,
-      :WrapReverse,
+      :no_wrap,
+      :wrap,
+      :wrap_reverse,
     )
     typedef Wrap, :YGWrap
 

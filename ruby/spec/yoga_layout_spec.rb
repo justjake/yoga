@@ -74,8 +74,8 @@ RSpec.describe YogaLayout::Node do
 
   describe '#style_set_direction' do
     it 'can set direction' do
-      subject.style_set_direction(:LTR)
-      expect(subject.style_get_direction).to eq(:LTR)
+      subject.style_set_direction(:ltr)
+      expect(subject.style_get_direction).to eq(:ltr)
     end
   end
 end
@@ -105,16 +105,16 @@ RSpec.describe('examples') do
     root = YogaLayout::Node.new
     root.style_set_width(500)
     root.style_set_height(120)
-    root.style_set_flex_direction(:Row)
-    root.style_set_padding(:All, 20)
+    root.style_set_flex_direction(:row)
+    root.style_set_padding(:all, 20)
 
     image = YogaLayout::Node.new
     image.style_set_width(80)
-    image.style_set_margin(:End, 20)
+    image.style_set_margin(:end, 20)
 
     text = YogaLayout::Node.new
     text.style_set_height(25)
-    text.style_set_align_self(:Center)
+    text.style_set_align_self(:center)
     text.style_set_flex_grow(1)
 
     root.insert_child(image, 0)
