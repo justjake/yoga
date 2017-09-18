@@ -40,7 +40,10 @@ module YogaLayout
     remember_function :YGNodeStyleGetFlexGrow, [:YGNodeRef], :float
     remember_function :YGNodeStyleSetFlexShrink, [:YGNodeRef, :float], :void
     remember_function :YGNodeStyleGetFlexShrink, [:YGNodeRef], :float
-    remember_function :YGNodeStyleSetFlexBasisAuto, [:YGNodeRef, :YGEdge], :void
+    remember_function :YGNodeStyleSetFlexBasis, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleSetFlexBasisPercent, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleGetFlexBasis, [:YGNodeRef], :YGValue
+    remember_function :YGNodeStyleSetFlexBasisAuto, [:YGNodeRef], :void
     remember_function :YGNodeStyleSetPosition, [:YGNodeRef, :YGEdge, :float], :void
     remember_function :YGNodeStyleSetPositionPercent, [:YGNodeRef, :YGEdge, :float], :void
     remember_function :YGNodeStyleGetPosition, [:YGNodeRef, :YGEdge], :YGValue
@@ -53,8 +56,14 @@ module YogaLayout
     remember_function :YGNodeStyleGetPadding, [:YGNodeRef, :YGEdge], :YGValue
     remember_function :YGNodeStyleSetBorder, [:YGNodeRef, :YGEdge, :float], :void
     remember_function :YGNodeStyleGetBorder, [:YGNodeRef, :YGEdge], :float
-    remember_function :YGNodeStyleSetWidthAuto, [:YGNodeRef, :YGEdge], :void
-    remember_function :YGNodeStyleSetHeightAuto, [:YGNodeRef, :YGEdge], :void
+    remember_function :YGNodeStyleSetWidth, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleSetWidthPercent, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleGetWidth, [:YGNodeRef], :YGValue
+    remember_function :YGNodeStyleSetWidthAuto, [:YGNodeRef], :void
+    remember_function :YGNodeStyleSetHeight, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleSetHeightPercent, [:YGNodeRef, :float], :void
+    remember_function :YGNodeStyleGetHeight, [:YGNodeRef], :YGValue
+    remember_function :YGNodeStyleSetHeightAuto, [:YGNodeRef], :void
     remember_function :YGNodeStyleSetMinWidth, [:YGNodeRef, :float], :void
     remember_function :YGNodeStyleSetMinWidthPercent, [:YGNodeRef, :float], :void
     remember_function :YGNodeStyleGetMinWidth, [:YGNodeRef], :YGValue

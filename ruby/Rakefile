@@ -65,7 +65,7 @@ class YogaHeaderParser
     when 'YG_NODE_STYLE_PROPERTY_UNIT'
       yg_node_style_property_unit(match)
     when 'YG_NODE_STYLE_PROPERTY_UNIT_AUTO'
-      yg_node_style_edge_property_unit_auto(match)
+      yg_node_style_property_unit_auto(match)
     when 'YG_NODE_STYLE_EDGE_PROPERTY'
       yg_node_style_edge_property(match)
     when 'YG_NODE_STYLE_EDGE_PROPERTY_UNIT'
@@ -119,6 +119,7 @@ class YogaHeaderParser
   end
 
   def yg_node_style_property_unit_auto(match)
+    puts "unit_auto: #{match.inspect}"
     yg_node_style_property_unit(match)
     declare ["YGNodeStyleSet#{match['name']}Auto", [:YGNodeRef], :void]
   end
