@@ -119,19 +119,21 @@ module YogaLayout
     ::YogaLayout::Bindings.functions.values.each do |fn_info|
       native_name, args, return_type = fn_info
       native_name = native_name.to_s
-      next unless native_name =~ /^YGNode(Style|Layout)?(Set|Get)/
-      next unless args.first == :YGNodeRef
-
-      match = Regexp.last_match
-      domain = match[1]
-      action = match[2]
-      prop = YogaLayout.underscore(match.post_match)
 
       # Don't expose methods that return pointers automatically: We should
       # always wrap those pointers in Ruby objects for safety.
       next if return_type == :YGNodeRef
       next if return_type == :YGConfigRef
       next if return_type == :pointer
+
+      # Only map style getters/setters automatically
+      next unless native_name =~ /^YGNode(Style|Layout)(Set|Get)/
+      next unless args.first == :YGNodeRef
+
+      match = Regexp.last_match
+      domain = match[1]
+      action = match[2]
+      prop = YogaLayout.underscore(match.post_match)
 
       ruby_name = YogaLayout.underscore(native_name.gsub(/^YGNode/, ''))
       map_method(ruby_name.to_sym, native_name.to_sym)
@@ -162,8 +164,6 @@ module YogaLayout
     end
     style_props.freeze
     layout_props.freeze
-
-    map_method(:print, :YGNodePrint)
 
     def reset
       if has_children?
@@ -217,6 +217,8 @@ module YogaLayout
       end
       ruby_child
     end
+
+    map_method(:get_child_count, :YGNodeGetChildCount)
 
     def get_parent
       ruby_parent = parent
@@ -272,6 +274,8 @@ module YogaLayout
     end
 
     map_method(:dirty?, :YGNodeIsDirty)
+
+    map_method(:print, :YGNodePrint)
 
     def has_measure_func?
       get_measure_func != nil
