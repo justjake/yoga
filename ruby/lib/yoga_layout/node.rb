@@ -35,7 +35,7 @@ module YogaLayout
     # @param config [YogaLayout::Config]
     # @return [YogaLayout::Node]
     def self.new_with_config(config)
-      new(auto_ptr(YogaLayout::Bindings.YGNodeNewWithConfig(config.pointer)))
+      new(auto_ptr(YogaLayout::Bindings.YGNodeNewWithConfig(config.pointer)), config)
     end
 
     # @override
@@ -50,7 +50,7 @@ module YogaLayout
       YogaLayout::Bindings.YGNodeFree(pointer)
     end
 
-    def initialize(auto_ptr = nil)
+    def initialize(auto_ptr = nil, config = nil)
       super(auto_ptr)
 
       @children = []
@@ -58,6 +58,7 @@ module YogaLayout
       @data = nil
       @measure_func = nil
       @baseline_func = nil
+      @config = config
     end
 
     # Set many styles at once.
