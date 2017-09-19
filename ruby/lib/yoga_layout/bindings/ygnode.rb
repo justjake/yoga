@@ -34,8 +34,6 @@ module YogaLayout
     # Printing (for debug???)
     remember_function :YGNodePrint, [:YGNodeRef, PrintOptions], :void
 
-    remember_function :YGFloatIsUndefined, [:float], :bool
-
     # No idea what this is used for
     remember_function :YGNodeCanUseCachedMeasurement, [
       :YGMeasureMode, # widthMode

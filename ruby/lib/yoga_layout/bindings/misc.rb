@@ -17,5 +17,7 @@ module YogaLayout
     remember_function :YGAssertWithConfig, [:YGConfigRef, :bool, :string], :void
 
     remember_function :YGSetMemoryFuncs, [:YGMalloc, :YGCalloc, :YGRealloc, :YGFree], :void
+
+    remember_function :YGFloatIsUndefined, [:float], :bool
   end
 end
