@@ -3,6 +3,14 @@ lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "yoga_layout/version"
 
+# Safe git_ls_files
+def git_ls_files(path)
+  operation = "git -C #{path} ls-files -z"
+  files = `#{operation}`.split("\x0")
+  raise "Failed optation #{operation.inspect}" unless $?.success?
+  files
+end
+
 Gem::Specification.new do |spec|
   spec.name          = "yoga_layout"
   spec.version       = YogaLayout::VERSION
@@ -12,18 +20,15 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{FFI-based wrapper of the cross-platform Yoga layout library}
   spec.homepage      = "https://github.com/justjake/yoga"
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
+  spec.files         = [
+    # All the files tracked in git, except for tests.
+    *git_ls_files('.').reject { |f| f.match(%r{^(test|spec|features)/}) },
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
+    # These files are copied by Rake inot ext/yoga_layout during build, but are
+    # not tracked in Git.
+    *Dir['ext/yoga_layout/*.{c,h}'],
+  ]
+
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
