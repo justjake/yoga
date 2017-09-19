@@ -22,4 +22,12 @@ module YogaLayout
   require 'yoga_layout/bindings'
   require 'yoga_layout/node'
   require 'yoga_layout/config'
+
+  def self.undefined
+    ::Float::NAN
+  end
+
+  def self.float_is_undefined?(float)
+    ::YogaLayout::Bindings.YGFloatIsUndefined(float)
+  end
 end
