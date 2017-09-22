@@ -7,23 +7,23 @@
 #
 # HELLO?
 
-os: osx
-osx_image: xcode8.2
+# os: osx
+# osx_image: xcode8.2
 language: cpp
-compiler: clang
-cache:
-  directories:
-    - $HOME/Library/Caches/Homebrew
-    - $HOME/android-sdk
-    - $HOME/android-ndk
+# compiler: clang
+# cache:
+#   directories:
+#     - $HOME/Library/Caches/Homebrew
+#     - $HOME/android-sdk
+#     - $HOME/android-ndk
 
 env:
-  - TARGET=c
-  - TARGET=java
-  - TARGET=net
-  - TARGET=ios
-  - TARGET=js
-  - TARGET=android
+  # - TARGET=c
+  # - TARGET=java
+  # - TARGET=net
+  # - TARGET=ios
+  # - TARGET=js
+  # - TARGET=android
   - TARGET=ruby
 
 before_install:
