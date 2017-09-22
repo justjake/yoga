@@ -22,6 +22,7 @@ env:
   - TARGET=ios
   - TARGET=js
   - TARGET=android
+  - TARGET=ruby
 
 before_install:
   - |
@@ -88,6 +89,12 @@ before_install:
       source /tmp/emsdk-portable/emsdk_env.sh &&
       npm run build:browser
     ) fi
+  - |
+    if [[ $TARGET = "ruby" ]]; then (
+      gem install bundler -v 1.15.2 &&
+      cd ruby &&
+      bundle install
+    ) fi
 
 script:
   # C
@@ -133,4 +140,10 @@ script:
       cd javascript &&
       npm run test:all &&
       npm run bench
+    ) fi
+  # Ruby
+  - |
+    if [[ $TARGET = "ruby" ]]; then (
+      cd ruby &&
+      bundle exec rake
     ) fi
