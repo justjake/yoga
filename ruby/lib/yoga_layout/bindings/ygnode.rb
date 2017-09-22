@@ -11,11 +11,11 @@ module YogaLayout
     remember_function :YGNodeGetInstanceCount, [], :int32_t
 
     # Children
-    remember_function :YGNodeInsertChild, [:YGNodeRef, :YGNodeRef, :uint32_t], :void
+    remember_function :YGNodeInsertChild, [:YGNodeRef, :YGNodeRef, :uint32], :void
     remember_function :YGNodeRemoveChild, [:YGNodeRef, :YGNodeRef], :void
-    remember_function :YGNodeGetChild, [:YGNodeRef, :uint32_t], :YGNodeRef
+    remember_function :YGNodeGetChild, [:YGNodeRef, :uint32], :YGNodeRef
     remember_function :YGNodeGetParent, [:YGNodeRef], :YGNodeRef
-    remember_function :YGNodeGetChildCount, [:YGNodeRef], :uint32_t
+    remember_function :YGNodeGetChildCount, [:YGNodeRef], :uint32
 
     # Layout
     remember_function :YGNodeCalculateLayout, [
