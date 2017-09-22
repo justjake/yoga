@@ -29,22 +29,22 @@ RSpec.describe YogaLayout::Node do
   # block.
   after(:all) do
     ::ObjectSpace.garbage_collect
-    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to eq(0)
   end
 
   # Strict test that garbage collecting a Node instance actually deallocates
   # the underlying YGNodeRef
   it 'garbage collects' do
     ObjectSpace.garbage_collect
-    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to eq(0)
 
-    allocated = described_class.new
+    allocated = descrieqd_class.new
     ObjectSpace.garbage_collect
-    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(1)
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to eq(1)
 
     allocated = nil
     ObjectSpace.garbage_collect
-    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to be(0)
+    expect(YogaLayout::Bindings.YGNodeGetInstanceCount).to eq(0)
   end
 
   describe '#get_child_count' do
