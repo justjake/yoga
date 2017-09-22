@@ -6,9 +6,5 @@ set -vx
 BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT="${BIN_DIR}/.."
 
-which bundle >/dev/null 2>&1 || gem install bundler
-
-cd "$ROOT"
-bundle install
-
-# Do any other automated setup that you need to do here
+chdir "$ROOT"
+exec bundle exec rake

@@ -89,11 +89,12 @@ before_install:
       source /tmp/emsdk-portable/emsdk_env.sh &&
       npm run build:browser
     ) fi
+
+  # Ruby
   - |
     if [[ $TARGET = "ruby" ]]; then (
       gem install bundler -v 1.15.2 &&
-      cd ruby &&
-      bundle install
+      ruby/bin/setup
     ) fi
 
 script:
@@ -141,9 +142,9 @@ script:
       npm run test:all &&
       npm run bench
     ) fi
+
   # Ruby
   - |
     if [[ $TARGET = "ruby" ]]; then (
-      cd ruby &&
-      bundle exec rake
+      ruby/bin/test
     ) fi

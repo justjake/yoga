@@ -33,6 +33,11 @@ You may need to install the latest watir-webdriver gem (`gem install watir-webdr
 ### .NET
 .NET testing is not integrated in buck yet, you might need to set up .NET testing environment. We have a script which to launch C# test on macOS, `csharp/tests/Facebook.Yoga/test_macos.sh`.
 
+### Ruby
+Ruby testing is not integrated in to buck either. To set up the ruby project, run `ruby/bin/setup`, which will install `bundler` if necessary, and then install Ruby dependencies. Then, run the tests with `ruby/bin/test`.
+
+The ruby gem is published under the name [yoga_layout](https://rubygems.org/gems/yoga_layout).
+
 ## Code style
 For the main C implementation of Yoga clang-format is used to ensure a consistent code style. Please run `bash format.sh` before submitting a pull request. For other languages just try to follow the current code style.
 
