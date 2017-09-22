@@ -6,5 +6,5 @@ set -vx
 BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT="${BIN_DIR}/.."
 
-chdir "$ROOT"
+cd "$ROOT"
 exec bundle exec rake
