@@ -245,7 +245,7 @@ module YogaLayout
       end
       @measure_func = callable || block
       if @measure_func
-        YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, native_measure_func)
+        YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, MEASURE_FUNC)
       else
         YogaLayout::Bindings.YGNodeSetMeasureFunc(pointer, nil)
       end
@@ -260,7 +260,7 @@ module YogaLayout
     def set_baseline_func(callable = nil, &block)
       @baseline_func = callable || block
       if @baseline_func
-        YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, native_baseline_func)
+        YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, BASELINE_FUNC)
       else
         YogaLayout::Bindings.YGNodeSetBaselineFunc(pointer, nil)
       end
@@ -309,32 +309,45 @@ module YogaLayout
 
     attr_accessor :parent
 
-    def native_measure_func
-      @native_measure_func ||= ::FFI::Function.new(
-        :YGSize, [
-          :YGNodeRef,
-          :float,
-          :YGMeasureMode,
-          :float,
-          :YGMeasureMode,
-        ],
-        method(:native_measure_func_callback)
-      )
+    # The native callback function used for all instances of YogaLayout::Node.
+    # Handles retrieving the ruby Node object and calling its callback.
+    # @api private
+    BASELINE_FUNC = -> (node_ref, width, height) do
+      node = from_node_context(node_ref)
+      node.get_baseline_func.call(node, width, height)
     end
 
-    def native_measure_func_callback(_, widht, width_mode, height, height_mode)
-      # we ignore the YGNodeRef param because we can just use "self" instead
-      @measure_func.call(self, widht, width_mode, height, height_mode)
+    # Native callback function used for all instances of YogaLayout::Node.
+    # Handles retrieving the ruby Node object and calling its callback.
+    # @api private
+    MEASURE_FUNC = -> (node_ref, width, widthMode, height, heightMode) do
+      node = from_node_context(node_ref)
+      ruby_res = node.get_measure_func.call(node, width, widthMode, height, heightMode)
+
+      case ruby_res
+      when YogaLayout::Bindings::Size
+        # User provided the destination type
+        ruby_res
+      when Array
+        unless ruby_res.length == 2
+          raise TypeError, "measure_func must return array of [width, height]," \
+            " was instead #{ruby_res.inspect}"
+        end
+
+        widht, height = ruby_res
+        res = YogaLayout::Bindings::Size.new
+        res[:width] = width
+        res[:height] = height
+        res
+      else
+        raise TypeError, "measure_func must return either [width, height] or a Size,", \
+          " was instead #{ruby_res.inspect}"
+      end
     end
 
     def set_context(obj)
       obj_ptr = ::YogaLayout::Bindings.ruby_to_pointer(obj)
       ::YogaLayout::Bindings.YGNodeSetContext(pointer, obj_ptr)
-    end
-
-    def get_context
-      obj_ptr = ::YogaLayout::Bindings.YGNodeGetContext(pointer, obj_ptr)
-      ::YogaLayout::Bindings.pointer_to_ruby(obj_ptr)
     end
   end
 end

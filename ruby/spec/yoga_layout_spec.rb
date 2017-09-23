@@ -100,7 +100,13 @@ RSpec.describe YogaLayout::Node do
       other_parent = described_class.new
       child = described_class.new
       other_parent.insert_child(child, 0)
-      expect { subject.insert_child(child, 0) }.to raise_error(YogaLayout::Error)
+      expect { subject.insert_child(child, 0) }.to raise_error(YogaLayout::Error, /parent/)
+    end
+
+    it 'insert child when parent has measure_func' do
+      subject.set_measure_func {}
+      child = described_class.new
+      expect { subject.insert_child(child, 0) }.to raise_error(YogaLayout::Error, /measure/)
     end
   end
 
@@ -108,6 +114,22 @@ RSpec.describe YogaLayout::Node do
     it 'can set direction' do
       subject.style_set_direction(:ltr)
       expect(subject.style_get_direction).to eq(:ltr)
+    end
+  end
+
+  describe '#set_measure_func' do
+    it 'changes layout results' do
+      parent = described_class[width: 500, height: 500]
+
+      node = described_class[
+        flex_grow: 0,
+      ]
+      parent.insert_child(node, 0)
+
+      node.set_measure_func { [25, 25] }
+      parent.calculate_layout
+
+      expect(node.layout[:height]).to eq(25)
     end
   end
 end
