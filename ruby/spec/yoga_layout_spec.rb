@@ -17,6 +17,36 @@ RSpec.describe YogaLayout::Bindings do
     described_class.YGNodePrint(node, 4)
     described_class.YGNodeFree(node)
   end
+
+  describe '.ruby_to_pointer' do
+    it 'returns an FFI::Pointer' do
+      obj = Object.new
+      expect(described_class.ruby_to_pointer(obj)).to be_a(::FFI::Pointer)
+    end
+  end
+
+  describe '.pointer_to_ruby' do
+    def round_trip(obj)
+      pointer = described_class.ruby_to_pointer(obj)
+      described_class.pointer_to_ruby(pointer)
+    end
+
+    it 'is converted back to the same object' do
+      obj = Object.new
+      expect(round_trip(obj)).to be(obj)
+    end
+
+    it 'works with array' do
+      obj = [Object.new, 5, 6, { foo: 'bar' }]
+      expect(round_trip(obj)).to be(obj)
+      expect(round_trip(obj)).to eq(obj)
+    end
+
+    it 'works with numbers' do
+      four = 4
+      expect(round_trip(four)).to be(four)
+    end
+  end
 end
 
 RSpec.describe YogaLayout::Node do

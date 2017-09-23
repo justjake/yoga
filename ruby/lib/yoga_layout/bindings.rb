@@ -24,6 +24,32 @@ module YogaLayout
       result
     end
 
+    # Retrieve a pointer to a Ruby object
+    #
+    # @param obj [Object]
+    # @return [::FFI::Pointer]
+    def self.ruby_to_pointer(obj)
+      addr = obj.object_id << 1
+      ::FFI::Pointer.new(:pointer, addr)
+    end
+
+    # Retrieve the Ruby object represented by an ffi_pointer (or any object
+    # with #to_i).
+    #
+    # This is dangerous, as there's no guarantee that the ffi_pointer actually
+    # points to a ruby object, and even if it *did* point to a ruby object,
+    # that object could have been garbage collected.
+    #
+    # Make sure your Ruby object outlives any pointers to it!
+    #
+    # @param ffi_pointer [::FFI::Pointer, #to_i] a pointer or address
+    # @return [Object] The ruby object at that address
+    def self.pointer_to_ruby(ffi_pointer)
+      require 'fiddle'
+      fiddle = ::Fiddle::Pointer.new(ffi_pointer.to_i)
+      fiddle.to_value
+    end
+
     # Auto-genrated by ../../enums.py
     require 'yoga_layout/bindings/enums'
 
