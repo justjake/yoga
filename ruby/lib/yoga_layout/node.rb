@@ -14,6 +14,11 @@ module YogaLayout
   # calculation is stored on each node. Traverse the tree and retrieve the
   # values from each node.
   class Node < YogaLayout::Wrapper
+    def self.from_node_context(node_ptr)
+      obj_ptr = YogaLayout::Bindings.YGNodeGetContext(node_ptr)
+      YogaLayout::Bindings.pointer_to_ruby(obj_ptr)
+    end
+
     # Quickly create a bunch of nodes with this handy node literal syntax.
     #
     # @param opts [Hash] save for the :children option, all of these are passed
@@ -59,6 +64,10 @@ module YogaLayout
       @measure_func = nil
       @baseline_func = nil
       @config = config
+
+      # Set the context pointer in the native node to point back to this Ruby
+      # object.
+      set_context(self)
     end
 
     # Set many styles at once.
@@ -318,16 +327,14 @@ module YogaLayout
       @measure_func.call(self, widht, width_mode, height, height_mode)
     end
 
-    def native_baseline_func
-      @native_baseline_func ||= ::FFI::Function.new(
-        :float,
-        [:YGNodeRef, :float, :float],
-        method(:native_baseline_func_callback)
-      )
+    def set_context(obj)
+      obj_ptr = ::YogaLayout::Bindings.ruby_to_pointer(obj)
+      ::YogaLayout::Bindings.YGNodeSetContext(pointer, obj_ptr)
     end
 
-    def native_baseline_func_callback(_, width, height)
-      @baseline_func.call(self, width, height)
+    def get_context
+      obj_ptr = ::YogaLayout::Bindings.YGNodeGetContext(pointer, obj_ptr)
+      ::YogaLayout::Bindings.pointer_to_ruby(obj_ptr)
     end
   end
 end

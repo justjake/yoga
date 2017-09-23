@@ -41,16 +41,18 @@ RSpec.describe YogaLayout::Bindings do
       expect(round_trip(obj)).to be(obj)
       expect(round_trip(obj)).to eq(obj)
     end
-
-    it 'works with numbers' do
-      four = 4
-      expect(round_trip(four)).to be(four)
-    end
   end
 end
 
 RSpec.describe YogaLayout::Node do
   subject { described_class.new }
+
+  describe '.from_node_context' do
+    it 'retrieves the node' do
+      node = described_class.new
+      expect(described_class.from_node_context(node.pointer)).to be(node)
+    end
+  end
 
   # Ensure we aren't leaking any native objects.
   #
